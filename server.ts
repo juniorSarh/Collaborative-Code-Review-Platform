@@ -5,7 +5,7 @@ const app:Express = express();
 
 
 app.get("/", (req:Request, res:Response) => {
-  res.send("Hello World!");
+  res.send("Welcome to the Collaborative Code Review Platform API");
 });
 
 app.listen(process.env.PORT, () => {
