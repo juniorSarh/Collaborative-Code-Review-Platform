@@ -1,6 +1,9 @@
 require("dotenv").config();
-import express, { Express, Request, Response, NextFunction, request } from "express";
+import { testConnection } from "config/db";
+import express, { Express, Request, Response, NextFunction } from "express";
 import path from "path";
+import userRoutes from "./routes/userRoutes";
+
 
 const app:Express = express();
 
@@ -20,17 +23,12 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 });
 
 const startServer= async()=>{
-  try {
+ 
+    await testConnection();
+    app.use("/api/users", userRoutes);
     app.listen(process.env.PORT, () => {
-      console.log(`Application is running on http://localhost:${process.env.PORT}`);
-    });
-  }
-    catch (error) { 
-        console.error("Failed to start server:", error);
-    }
-}
-  
-// app.listen(process.env.PORT, () => {
-//   console.log(`Application is running on http://localhost:${process.env.PORT}`);
-// });
+        console.log(`Application is running on http://localhost:${process.env.PORT}`);  
+        });
+}   
+
 export default startServer()
