@@ -2,7 +2,7 @@ require("dotenv").config();
 import { testConnection } from "config/db";
 import express, { Express, Request, Response, NextFunction } from "express";
 import path from "path";
-import userRoutes from "./routes/userRoutes";
+import userRoutes from "./routes/userRoutes"
 
 
 const app:Express = express();
