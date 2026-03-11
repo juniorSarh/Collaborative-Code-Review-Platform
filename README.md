@@ -3,45 +3,6 @@
 
 An API-driven service that enables developers and teams to post code snippets, request feedback, and collaborate on reviews in real time.
 
-## Features
-
-### Authentication & User Management
-- ✅ User registration and login with JWT authentication
-- ✅ Role-based access control (admin, reviewer, submitter)
-- ✅ Profile management (name, email, avatar)
-
-### Projects / Repositories
-- ✅ Create and manage projects
-- ✅ Assign members to projects with different roles
-- ✅ Project ownership and member management
-
-### Code Submissions
-- 🔄 Upload code snippets or files (text only)
-- 🔄 Associate submissions with projects
-- 🔄 Track submission status (pending, in_review, approved, changes_requested)
-
-### Comments & Reviews
-- 🔄 Add inline comments on specific lines of code
-- 🔄 General comments on submissions
-- 🔄 Review workflow with approvals and change requests
-
-### Notifications
-- 🔄 Real-time activity feed
-- 🔄 WebSocket notifications for live updates
-
-### Analytics Dashboard
-- 🔄 Project-level statistics
-- 🔄 Review performance metrics
-- 🔄 User activity tracking
-
-## Tech Stack
-
-- **Backend:** Node.js, Express.js
-- **Database:** PostgreSQL
-- **Authentication:** JWT (JSON Web Tokens)
-- **Language:** TypeScript/JavaScript
-
-
 ## Getting Started
 
 ### Prerequisites
@@ -73,7 +34,7 @@ An API-driven service that enables developers and teams to post code snippets, r
    DB_HOST=localhost
    DB_PORT=5432
    DB_NAME=codereview
-   DB_USER=your_username
+   DB_USER=postgres
    DB_PASSWORD=your_password
    JWT_SECRET=your_jwt_secret
    PORT=5000
@@ -201,6 +162,38 @@ GET /api/projects/:id/members
 Authorization: Bearer <jwt_token>
 ```
 
+## Project Structure
+
+```
+Collaborative-Code-Review-Platform/
+├── src/
+│   ├── controllers/
+│   │   ├── userController.ts
+│   │   └── projectController.ts
+│   ├── routes/
+│   │   ├── userRoutes.ts
+│   │   └── projectRoutes.ts
+│   ├── service/
+│   │   ├── userService.ts
+│   │   └── projectService.ts
+│   ├── models/
+│   │   ├── user.ts
+│   │   ├── project.ts
+│   │   └── submission.ts
+│   ├── middleware/
+│   │   └── auth.ts
+│   ├── config/
+│   │   └── db.ts
+│   └── server.ts
+├── public/
+├── views/
+├── scripts/
+│   └── migrate.js
+├── .env
+├── package.json
+└── README.md
+```
+
 ## Database Schema
 
 ### Users
@@ -278,75 +271,3 @@ Authorization: Bearer <jwt_token>
 - Can create code submissions
 - Can view comments on their submissions
 - Cannot review others' code
-
-## Development
-
-### Running in Development Mode
-
-```bash
-npm run dev
-```
-
-This will start the server with nodemon for auto-restart on file changes.
-
-### Database Migrations
-
-To run all migrations:
-```bash
-node scripts/migrate.js
-```
-
-### Testing
-
-```bash
-npm test
-```
-
-## Project Structure
-
-```
-├── config/
-│   └── db.js                 # Database configuration
-├── controllers/
-│   ├── userController.js     # User-related endpoints
-│   └── projectController.js  # Project-related endpoints
-├── middleware/
-│   └── auth.js               # Authentication middleware
-├── migrations/               # SQL migration files
-├── models/                   # TypeScript interfaces
-├── routes/
-│   ├── userRoutes.js         # User route definitions
-│   └── projectRoutes.js      # Project route definitions
-├── scripts/
-│   └── migrate.js            # Migration runner
-├── service/
-│   ├── userService.js        # User business logic
-│   └── projectService.js     # Project business logic
-├── server.js                 # Main server file
-└── package.json
-```
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
-
-## License
-
-This project is licensed under the ISC License.
-
-## Future Enhancements
-
-- [ ] Complete submission functionality
-- [ ] Comments and reviews system
-- [ ] WebSocket real-time notifications
-- [ ] File upload support
-- [ ] Analytics dashboard
-- [ ] Email notifications
-- [ ] API rate limiting
-- [ ] Comprehensive test suite
-- [ ] Docker containerization
-- [ ] Frontend web application

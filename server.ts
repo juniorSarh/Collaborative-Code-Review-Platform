@@ -1,8 +1,10 @@
 require("dotenv").config();
-import { testConnection } from "config/db";
+import { testConnection } from "./config/db";
 import express, { Express, Request, Response, NextFunction } from "express";
 import path from "path";
 import userRoutes from "./routes/userRoutes"
+import projectRoutes from "./routes/projectRoutes";
+
 
 
 const app:Express = express();
@@ -26,6 +28,7 @@ const startServer= async()=>{
  
     await testConnection();
     app.use("/api/users", userRoutes);
+    app.use("/api/projects", projectRoutes);
     app.listen(process.env.PORT, () => {
         console.log(`Application is running on http://localhost:${process.env.PORT}`);  
         });

@@ -1,13 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
 import JWT from 'jsonwebtoken';
-import { UserRole } from '../models/userModel';
+import { UserRole } from '../models/user';
 
 // Extend Express Request type to include user
 declare global {
   namespace Express {
     interface Request {
       user?: {
-        id: number;
+        id: string;
         email: string;
         role: UserRole;
       };
@@ -21,14 +21,14 @@ const REFRESH_TOKEN_EXPIRY = '7d';
 
 // Generate JWT token
 const generateToken = (
-  userId: number, 
+  id: string, 
   email: string, 
   role: UserRole, 
   type: 'access' | 'refresh'
 ): string => {
   return JWT.sign(
     { 
-      userId, 
+      id, 
       email, 
       role,
       type,
@@ -44,7 +44,7 @@ const generateToken = (
 const verifyToken = (token: string, type: 'access' | 'refresh') => {
   try {
     const decoded = JWT.verify(token, JWT_SECRET) as {
-      userId: number;
+      id: string;
       email: string;
       role: UserRole;
       type: string;
@@ -57,7 +57,7 @@ const verifyToken = (token: string, type: 'access' | 'refresh') => {
     }
 
     return {
-      userId: decoded.userId,
+      id: decoded.id,
       email: decoded.email,
       role: decoded.role as UserRole,
     };
@@ -84,7 +84,7 @@ const authenticate = async (req: Request, res: Response, next: NextFunction) => 
     try {
       const user = verifyToken(token, 'access');
       req.user = {
-        id: user.userId,
+        id: user.id,
         email: user.email,
         role: user.role,
       };
@@ -144,67 +144,9 @@ const authorize = (roles: UserRole | UserRole[] = []) => {
   };
 };
 
-// Refresh token handler
-const refreshToken = (req: Request, res: Response) => {
-  const refreshToken = req.cookies.refreshToken;
-
-  if (!refreshToken) {
-    return res.status(401).json({
-      success: false,
-      message: 'No refresh token provided',
-      code: 'REFRESH_TOKEN_REQUIRED',
-    });
-  }
-
-  try {
-    const user = verifyToken(refreshToken, 'refresh');
-    
-    // Generate new access token
-    const accessToken = generateToken(user.userId, user.email, user.role, 'access');
-    
-    res.json({
-      success: true,
-      token: accessToken,
-      expiresIn: ACCESS_TOKEN_EXPIRY,
-    });
-  } catch (error) {
-    console.error('Refresh token error:', error);
-    
-    if (error instanceof JWT.TokenExpiredError) {
-      return res.status(401).json({
-        success: false,
-        message: 'Refresh token expired',
-        code: 'REFRESH_TOKEN_EXPIRED',
-      });
-    }
-    
-    res.status(403).json({
-      success: false,
-      message: 'Invalid refresh token',
-      code: 'INVALID_REFRESH_TOKEN',
-    });
-  }
-};
-
-// Logout handler
-const logout = (_req: Request, res: Response) => {
-  res.clearCookie('refreshToken', {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
-  });
-
-  res.json({
-    success: true,
-    message: 'Logged out successfully',
-  });
-};
-
 export {
   generateToken,
   verifyToken,
   authenticate,
   authorize,
-  refreshToken,
-  logout,
 };

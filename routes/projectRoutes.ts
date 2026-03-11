@@ -1,6 +1,6 @@
 import { Router } from "express";
-import * as projectController from "../controllers/projectController_new";
-import { authenticate, authorize } from "../middleware/auth_updated";
+import * as projectController from "../controllers/projectController";
+import { authenticate, authorize } from "../middleware/auth";
 
 const router = Router();
 

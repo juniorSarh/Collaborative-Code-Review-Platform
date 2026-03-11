@@ -1,19 +1,10 @@
-const { Pool } = require('pg');
-const fs = require('fs');
-const path = require('path');
-require('dotenv').config();
-
-const pool = new Pool({
-  user: process.env.DB_USER,
-  host: process.env.DB_HOST,
-  database: process.env.DB_NAME,
-  password: process.env.DB_PASSWORD,
-  port: Number(process.env.DB_PORT || 5432),
-});
+import { query } from "../config/db";
+import fs from 'fs';
+import path from 'path';
 
 const migrationsPath = path.join(__dirname, '../migrations');
 
-async function runMigrations() {
+const runMigrations = async () => {
   try {
     console.log('Starting database migrations...');
     
@@ -31,7 +22,7 @@ async function runMigrations() {
       const migrationSQL = fs.readFileSync(filePath, 'utf8');
       
       try {
-        await pool.query(migrationSQL);
+        await query(migrationSQL);
         console.log(`✅ Migration ${file} completed successfully`);
       } catch (error) {
         console.error(`❌ Migration ${file} failed:`, error);
@@ -43,9 +34,12 @@ async function runMigrations() {
   } catch (error) {
     console.error('Migration failed:', error);
     process.exit(1);
-  } finally {
-    await pool.end();
   }
+};
+
+// Run migrations if this file is executed directly
+if (require.main === module) {
+  runMigrations();
 }
 
-runMigrations();
+export default runMigrations;
