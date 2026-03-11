@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import * as userService from "../service/userService";
 import JWT from "jsonwebtoken";
 import bcrypt from "bcryptjs";
+import { generateToken } from "../middleware/auth";
 
 export const register = async (req: Request, res: Response) => {
   const { name, email, password, role } = req.body;
@@ -45,12 +46,7 @@ export const login = async (req: Request, res: Response) => {
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid password" });
     }
-    const payload = { userId: user.id, email: user.email, role: user.role };
-    const token = JWT.sign(
-      { payload },
-      process.env.JWT_SECRET || "defaultsecret",
-      { expiresIn: "1h" }
-    );
+    const token = generateToken(user.id, user.email, user.role, 'access');
     res.status(200).json({ message: "Login successful", token, user: { id: user.id, name: user.name, email: user.email, role: user.role } });
   } catch (error) {
     res.status(500).json({ message: "Error logging in the user" });
@@ -59,7 +55,7 @@ export const login = async (req: Request, res: Response) => {
 
 export const getProfile = async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user?.userId;
+    const userId = (req as any).user?.id;
     if (!userId) {
       return res.status(401).json({ message: "User not authenticated" });
     }
@@ -84,7 +80,7 @@ export const getProfile = async (req: Request, res: Response) => {
 
 export const updateProfile = async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user?.userId;
+    const userId = (req as any).user?.id;
     if (!userId) {
       return res.status(401).json({ message: "User not authenticated" });
     }
