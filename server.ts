@@ -4,6 +4,7 @@ import express, { Express, Request, Response, NextFunction } from "express";
 import path from "path";
 import userRoutes from "./routes/userRoutes"
 import projectRoutes from "./routes/projectRoutes";
+import submissionRoutes from "./routes/submissionRoutes";
 
 
 
@@ -29,6 +30,7 @@ const startServer= async()=>{
     await testConnection();
     app.use("/api/users", userRoutes);
     app.use("/api/projects", projectRoutes);
+    app.use("/api/submissions", submissionRoutes);
     app.listen(process.env.PORT, () => {
         console.log(`Application is running on http://localhost:${process.env.PORT}`);  
         });
