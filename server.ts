@@ -5,6 +5,8 @@ import path from "path";
 import userRoutes from "./routes/userRoutes"
 import projectRoutes from "./routes/projectRoutes";
 import submissionRoutes from "./routes/submissionRoutes";
+import commentRoutes from "./routes/commentRoutes";
+import reviewRoutes from "./routes/reviewRoutes";
 
 
 
@@ -31,6 +33,8 @@ const startServer= async()=>{
     app.use("/api/users", userRoutes);
     app.use("/api/projects", projectRoutes);
     app.use("/api/submissions", submissionRoutes);
+    app.use("/api/comments", commentRoutes);
+    app.use("/api/reviews", reviewRoutes);
     app.listen(process.env.PORT, () => {
         console.log(`Application is running on http://localhost:${process.env.PORT}`);  
         });
