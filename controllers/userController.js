@@ -4,6 +4,7 @@ const bcrypt = require("bcryptjs");
 
 const register = async (req, res) => {
   const { name, email, password, role } = req.body;
+  console.log('Registration request body:', { name, email, password, role }); // Debug log
   if (!name || !email || !password) {
     return res.status(400).json({ message: "Name, email, and password are required" });
   }

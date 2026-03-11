@@ -10,10 +10,11 @@ const findUserByEmail = async (email) => {
 };
 
 const createUser = async (name, email, password, role = 'submitter') => {
+  console.log('Creating user with params:', { name, email, password, role }); // Debug log
   const salt = await bcrypt.genSalt(10);
   const password_hash = await bcrypt.hash(password, salt);
   const res = await query(
-    "INSERT INTO users (name, email, password_hash, role) VALUES ($1, $2, $3, $4) RETURNING *",
+    "INSERT INTO users (name, email, password_hash, role, created_at, updated_at) VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP) RETURNING *",
     [name, email, password_hash, role]
   );
   return res.rows[0];
