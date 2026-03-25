@@ -2,7 +2,7 @@ import { query } from "../config/db";
 import { Submission, SubmissionStatus } from "../models/submission";
 
 // ✅ Ensure submissions table exists
-const createSubmissionsTable = async () => {
+export const createSubmissionsTable = async () => {
   await query(`
     CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 

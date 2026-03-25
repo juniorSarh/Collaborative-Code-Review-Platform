@@ -1,6 +1,18 @@
 import { Request, Response } from "express";
 import * as commentService from "../service/commentService";
 
+/**
+ * Ensures the comments table exists before performing operations.
+ */
+const ensureTableExists = async () => {
+  try {
+    await commentService.createCommentsTable();
+  } catch (error) {
+    console.error("Comments table initialization failed:", error);
+    throw new Error("Internal database error during initialization");
+  }
+};
+
 export const createComment = async (req: Request, res: Response) => {
   try {
     const { submissionId, content, lineNumber, parentCommentId } = req.body;
@@ -15,6 +27,9 @@ export const createComment = async (req: Request, res: Response) => {
     if (!userId) {
       return res.status(401).json({ message: "User not authenticated" });
     }
+
+    // Ensure table exists
+    await ensureTableExists();
 
     // Check if user can access the submission
     const canAccess = await commentService.canAccessSubmission(submissionId, userId);
@@ -48,6 +63,9 @@ export const getComments = async (req: Request, res: Response) => {
     if (!userId) {
       return res.status(401).json({ message: "User not authenticated" });
     }
+
+    // Ensure table exists
+    await ensureTableExists();
 
     // Check if user can access the submission
     const canAccess = await commentService.canAccessSubmission(submissionId, userId);
@@ -86,6 +104,9 @@ export const updateComment = async (req: Request, res: Response) => {
       return res.status(401).json({ message: "User not authenticated" });
     }
 
+    // Ensure table exists
+    await ensureTableExists();
+
     // Check if user is the comment owner
     const isOwner = await commentService.isCommentOwner(id, userId);
     if (!isOwner) {
@@ -115,6 +136,9 @@ export const deleteComment = async (req: Request, res: Response) => {
     if (!userId) {
       return res.status(401).json({ message: "User not authenticated" });
     }
+
+    // Ensure table exists
+    await ensureTableExists();
 
     // Check if user is the comment owner
     const isOwner = await commentService.isCommentOwner(id, userId);

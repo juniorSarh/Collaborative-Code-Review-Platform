@@ -1,6 +1,18 @@
 import { Request, Response } from "express";
 import * as reviewService from "../service/reviewService";
 
+/**
+ * Ensures the reviews table exists before performing operations.
+ */
+const ensureTableExists = async () => {
+  try {
+    await reviewService.createReviewsTable();
+  } catch (error) {
+    console.error("Reviews table initialization failed:", error);
+    throw new Error("Internal database error during initialization");
+  }
+};
+
 export const createReview = async (req: Request, res: Response) => {
   try {
     const { submissionId, decision, feedback } = req.body;
@@ -15,6 +27,9 @@ export const createReview = async (req: Request, res: Response) => {
     if (!userId) {
       return res.status(401).json({ message: "User not authenticated" });
     }
+
+    // Ensure table exists
+    await ensureTableExists();
 
     // Check if user can review the submission
     const canReview = await reviewService.canReviewSubmission(submissionId, userId);
@@ -50,6 +65,9 @@ export const getReviews = async (req: Request, res: Response) => {
       return res.status(401).json({ message: "User not authenticated" });
     }
 
+    // Ensure table exists
+    await ensureTableExists();
+
     // Check if user can access the submission
     const canAccess = await reviewService.canReviewSubmission(submissionId, userId);
     if (!canAccess) {
@@ -80,6 +98,9 @@ export const updateReview = async (req: Request, res: Response) => {
     if (!userId) {
       return res.status(401).json({ message: "User not authenticated" });
     }
+
+    // Ensure table exists
+    await ensureTableExists();
 
     // Check if user is the review owner
     const isOwner = await reviewService.isReviewOwner(id, userId);
@@ -113,6 +134,9 @@ export const deleteReview = async (req: Request, res: Response) => {
     if (!userId) {
       return res.status(401).json({ message: "User not authenticated" });
     }
+
+    // Ensure table exists
+    await ensureTableExists();
 
     // Check if user is the review owner
     const isOwner = await reviewService.isReviewOwner(id, userId);

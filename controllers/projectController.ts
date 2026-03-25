@@ -1,10 +1,22 @@
 import { Request, Response } from "express";
 import * as projectService from "../service/projectService";
 
+/**
+ * Ensures the projects and project_members tables exist.
+ */
+const ensureTableExists = async () => {
+  try {
+    await projectService.createProjectTables();
+  } catch (error) {
+    console.error("Project tables initialization failed:", error);
+    throw new Error("Internal database error during initialization");
+  }
+};
+
 export const createProject = async (req: Request, res: Response) => {
   try {
     const { name, description } = req.body;
-    const userId = (req as any).user?.id; // Will need to update auth integration
+    const userId = (req as any).user?.id;
     
     if (!name) {
       return res.status(400).json({ message: "Project name is required" });
@@ -13,6 +25,9 @@ export const createProject = async (req: Request, res: Response) => {
     if (!userId) {
       return res.status(401).json({ message: "User not authenticated" });
     }
+
+    // Ensure tables exist
+    await ensureTableExists();
 
     const project = await projectService.createProject(name, description, userId);
     res.status(201).json(project);
@@ -29,6 +44,9 @@ export const getProjects = async (req: Request, res: Response) => {
     if (!userId) {
       return res.status(401).json({ message: "User not authenticated" });
     }
+
+    // Ensure tables exist
+    await ensureTableExists();
 
     const projects = await projectService.getProjectsByUser(userId);
     res.status(200).json(projects);
@@ -47,12 +65,14 @@ export const getProject = async (req: Request, res: Response) => {
       return res.status(401).json({ message: "User not authenticated" });
     }
 
+    // Ensure tables exist
+    await ensureTableExists();
+
     const project = await projectService.getProjectById(id);
     if (!project) {
       return res.status(404).json({ message: "Project not found" });
     }
 
-    // Check if user is owner or member
     const isOwner = await projectService.isProjectOwner(id, userId);
     const isMember = await projectService.isProjectMember(id, userId);
     
@@ -77,7 +97,9 @@ export const updateProject = async (req: Request, res: Response) => {
       return res.status(401).json({ message: "User not authenticated" });
     }
 
-    // Check if user is owner
+    // Ensure tables exist
+    await ensureTableExists();
+
     const isOwner = await projectService.isProjectOwner(id, userId);
     if (!isOwner) {
       return res.status(403).json({ message: "Only project owners can update projects" });
@@ -104,7 +126,9 @@ export const deleteProject = async (req: Request, res: Response) => {
       return res.status(401).json({ message: "User not authenticated" });
     }
 
-    // Check if user is owner
+    // Ensure tables exist
+    await ensureTableExists();
+
     const isOwner = await projectService.isProjectOwner(id, userId);
     if (!isOwner) {
       return res.status(403).json({ message: "Only project owners can delete projects" });
@@ -136,7 +160,9 @@ export const addProjectMember = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "User ID and role are required" });
     }
 
-    // Check if current user is owner
+    // Ensure tables exist
+    await ensureTableExists();
+
     const isOwner = await projectService.isProjectOwner(id, currentUserId);
     if (!isOwner) {
       return res.status(403).json({ message: "Only project owners can add members" });
@@ -159,7 +185,9 @@ export const removeProjectMember = async (req: Request, res: Response) => {
       return res.status(401).json({ message: "User not authenticated" });
     }
 
-    // Check if current user is owner
+    // Ensure tables exist
+    await ensureTableExists();
+
     const isOwner = await projectService.isProjectOwner(id, currentUserId);
     if (!isOwner) {
       return res.status(403).json({ message: "Only project owners can remove members" });
@@ -186,7 +214,9 @@ export const getProjectMembers = async (req: Request, res: Response) => {
       return res.status(401).json({ message: "User not authenticated" });
     }
 
-    // Check if user is owner or member
+    // Ensure tables exist
+    await ensureTableExists();
+
     const isOwner = await projectService.isProjectOwner(id, userId);
     const isMember = await projectService.isProjectMember(id, userId);
     

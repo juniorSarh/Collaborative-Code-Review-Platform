@@ -3,7 +3,7 @@ import { User, UserRole } from "../models/user";
 import bcrypt from "bcryptjs";
 
 // ✅ Ensure table exists
-const createUsersTable = async () => {
+export const createUsersTable = async () => {
   await query(`
     CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
