@@ -55,6 +55,108 @@ An API-driven service that enables developers and teams to post code snippets, r
    GRANT ALL PRIVILEGES ON DATABASE codereview TO your_username;
    ```
 
+   # create tables on postgres queries
+   ```sql
+   CREATE TABLE IF NOT EXISTS users (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      name TEXT NOT NULL,
+      email TEXT UNIQUE NOT NULL,
+      password_hash TEXT NOT NULL,
+      role TEXT DEFAULT 'submitter',
+      avatar_url TEXT,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    ```
+    # submissions
+
+    ```sql
+       CREATE TABLE IF NOT EXISTS submissions (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      project_id UUID NOT NULL,
+      user_id UUID NOT NULL,
+      title TEXT NOT NULL,
+      code_content TEXT NOT NULL,
+      file_name TEXT,
+      status TEXT DEFAULT 'pending',
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+      CONSTRAINT fk_project
+        FOREIGN KEY(project_id) 
+        REFERENCES projects(id) 
+        ON DELETE CASCADE,
+
+      CONSTRAINT fk_user
+        FOREIGN KEY(user_id) 
+        REFERENCES users(id) 
+        ON DELETE CASCADE
+    );
+    ```
+    # reviews
+    ```sql
+    CREATE TABLE IF NOT EXISTS reviews (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      submission_id UUID NOT NULL,
+      reviewer_id UUID NOT NULL,
+      decision VARCHAR(50) CHECK (decision IN ('approved', 'rejected', 'changes_requested')),
+      feedback TEXT,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+      CONSTRAINT fk_submission
+        FOREIGN KEY(submission_id)
+        REFERENCES submissions(id)
+        ON DELETE CASCADE,
+
+      CONSTRAINT fk_reviewer
+        FOREIGN KEY(reviewer_id)
+        REFERENCES users(id)
+        ON DELETE CASCADE
+    );
+    ```
+    # project 
+    ```sql
+    CREATE TABLE IF NOT EXISTS projects (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      name VARCHAR(255) NOT NULL,
+      description TEXT,
+      created_by UUID NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+      CONSTRAINT fk_project_owner
+        FOREIGN KEY(created_by)
+        REFERENCES users(id)
+        ON DELETE CASCADE
+    );
+    ```
+    # comments
+    ```sql
+        CREATE TABLE IF NOT EXISTS comments (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      submission_id UUID NOT NULL,
+      user_id UUID NOT NULL,
+      content TEXT NOT NULL,
+      line_number INTEGER,
+      parent_comment_id UUID,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+      CONSTRAINT fk_submission
+        FOREIGN KEY(submission_id)
+        REFERENCES submissions(id)
+        ON DELETE CASCADE,
+
+      CONSTRAINT fk_user
+        FOREIGN KEY(user_id)
+        REFERENCES users(id)
+        ON DELETE CASCADE,
+
+      CONSTRAINT fk_parent_comment
+        FOREIGN KEY(parent_comment_id)
+        REFERENCES comments(id)
+        ON DELETE CASCADE
+    );
+    ```
 5. **Run database migrations**
    ```bash
    node scripts/migrate.js
