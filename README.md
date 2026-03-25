@@ -27,6 +27,7 @@ An API-driven service that enables developers and teams to post code snippets, r
 3. **Set up environment variables**
    ```bash
    cp .env.example .env
+
    ```
    
    Update `.env` with your database configuration:
